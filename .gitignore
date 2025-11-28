@@ -1,0 +1,28 @@
+# 忽略所有编译输出
+*.o
+*.out
+*.so
+*.a
+*.exe
+*.dll
+
+# 忽略 Linux 下的可执行文件
+*
+!*/
+!*.c
+!*.cc
+!*.cpp
+!*.h
+!*.hpp
+!*.md
+!*.txt
+
+# 忽略编译目录
+/bin/
+/build/
+
+#不忽略Makefile
+!Makefile
+
+#不忽略.gitignore
+!.gitignore
