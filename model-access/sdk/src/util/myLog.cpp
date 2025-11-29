@@ -18,7 +18,7 @@ namespace ephemerals{
                 if(logFilePath == "stdout"){
                     _logger = spdlog::stdout_color_mt(name);
                 }else{
-                    _logger = spdlog::basic_logger_mt<spdlog::async_logger>(name, logFilePath);
+                    _logger = spdlog::basic_logger_mt<spdlog::async_factory>(name, logFilePath);
                 }
             }
 
