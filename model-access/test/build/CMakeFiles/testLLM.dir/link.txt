@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/testLLM.dir/testLLM.cpp.o "CMakeFiles/testLLM.dir/home/ep/model-verse/model-access/sdk/src/util/myLog.cpp.o" "CMakeFiles/testLLM.dir/home/ep/model-verse/model-access/sdk/src/DeepSeekProvider.cpp.o" -o testLLM  -ljsoncpp -lfmt -lspdlog -lgtest /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so 
