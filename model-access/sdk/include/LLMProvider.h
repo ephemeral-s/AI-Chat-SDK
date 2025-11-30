@@ -9,23 +9,23 @@ namespace ai_chat_sdk{
     
     class LLMProvider{
     public:
-        // ³õÊ¼»¯Ä£ĞÍ
-        virtual void initModel(const std::map<std::string, std::string>& modelConfig) = 0;
-        // ÊÇ·ñ¿ÉÓÃ
+        // åˆå§‹åŒ–æ¨¡å‹
+        virtual bool initModel(const std::map<std::string, std::string>& modelConfig) = 0;
+        // æ˜¯å¦å¯ç”¨
         virtual bool isAvailable() const = 0;
-        // »ñÈ¡Ä£ĞÍÃû³Æ
+        // è·å–æ¨¡å‹åç§°
         virtual std::string getModelName() const = 0;
-        // »ñÈ¡Ä£ĞÍÃèÊö 
+        // è·å–æ¨¡å‹æè¿°
         virtual std::string getModelDesc() const = 0;
-        //·¢ËÍÏûÏ¢ - È«Á¿·µ»Ø
+        // å‘é€æ¶ˆæ¯ - å…¨é‡è¿”å›
         virtual std::string sendMessage(const std::vector<Message>& messages, const std::map<std::string, std::string>& requestParams) = 0;
-        // ·¢ËÍÏûÏ¢ - Á÷Ê½·µ»Ø
+        // å‘é€æ¶ˆæ¯ - æµå¼è¿”å›
         virtual std::string sendMessageStream(const std::vector<Message>& messages, 
                                             const std::map<std::string, std::string>& requestParams, 
-                                            std::function<void(const std::string&, bool)> callback) = 0; // callback£º»Øµ÷º¯Êı´¦Àí·µ»ØµÄÎÄ±¾£¬²ÎÊı£º(·µ»ØµÄÎÄ±¾£¬ÊÇ·ñÊÇ×îºóÒ»¸ö)
-    private:
-        bool _isAvailable = false; // ÊÇ·ñ¿ÉÓÃ
-        std::string _apiKey;       // API ÃÜÔ¿
-        std::string _endpoint;     // API µ÷ÓÃµØÖ·
+                                            std::function<void(const std::string&, bool)> callback) = 0; // callbackï¼šå›è°ƒå‡½æ•°å¤„ç†è¿”å›çš„æ–‡æœ¬ï¼Œå‚æ•°ï¼š(è¿”å›çš„æ–‡æœ¬ï¼Œæ˜¯å¦æ˜¯æœ€åä¸€ä¸ª)
+    protected:
+        bool _isAvailable = false; // æ˜¯å¦å¯ç”¨
+        std::string _apiKey;       // API å¯†é’¥
+        std::string _endpoint;     // API è°ƒç”¨åœ°å€
     };
 }
