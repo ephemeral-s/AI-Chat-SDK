@@ -24,8 +24,17 @@ TEST(DeepSeekProviderTest, sendMessage)
         {"max_tokens", "2048"}
     };
 
-    std::string response = Provider->sendMessage(messages, requestParams);
+    //std::string response = Provider->sendMessage(messages, requestParams);
+
+    auto writeChunk = [&](const std::string& chunk, bool last){
+        INFO("writeChunk: {}", chunk);
+        if(last){
+            INFO("[DONE]");
+        }
+    };
+    std::string response = Provider->sendMessageStream(messages, requestParams, writeChunk);
     ASSERT_TRUE(!response.empty());
+    INFO("response: {}", response);
 }
 
 int main()
