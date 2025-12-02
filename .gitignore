@@ -44,7 +44,6 @@ compile_commands.json
 .DS_Store
 
 # --- 7. 这是一个例外列表 (强制保留的文件) ---
-!Makefile
 !CMakeLists.txt
 !.gitignore
 !README.md
