@@ -1,57 +1,54 @@
-# --- 1. 编译中间件 & 二进制库 ---
-*.o
-*.obj
-*.so
-*.so.*
-*.a
-*.lib
-*.dll
-*.dylib
-*.out
-*.app
-*.exe
-
-# --- 2. C++ 依赖文件 (gcc/clang 生成) ---
+# Prerequisites
 *.d
 
-# --- 3. 核心转储 (程序崩溃产生的 Dump) ---
-core
-core.*
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
 
-# --- 4. 忽略构建输出目录 ---
-# 建议 CMake 构建都在 build/ 下，Makefile 产物建议输出到 bin/
-/build/
-/bin/
-/dist/
-/out/
-/lib/
+# Precompiled Headers
+*.gch
+*.pch
 
-# --- 5. CMake 生成文件 (防止意外在源码根目录构建) ---
-# 即使你在根目录运行了 cmake，这些也会被忽略
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+test/testLLM
+
+# CMake
+cmake_install.cmake
 CMakeCache.txt
 CMakeFiles/
-cmake_install.cmake
+Makefile
+CMakeScripts/
+testing/
+test_detail.xml
+CTestTestfile.cmake
+DartConfiguration.tcl
 install_manifest.txt
-*.cmake
-compile_commands.json
 
-# --- 6. IDE & 编辑器配置 (VS Code / Trae) ---
+# Build directories
+build/
+bin/
+lib/
+
+# IDEs and Editors
 .vscode/
-.trae/
 .idea/
 *.swp
+*.swo
 *~
 .DS_Store
-
-# --- 7. 这是一个例外列表 (强制保留的文件) ---
-!CMakeLists.txt
-!.gitignore
-!README.md
-
-# --- 8. 处理 Linux 根目录下的无扩展名可执行文件 ---
-# 这是一个难点。标准做法是忽略所有，然后保留源码。
-# 但为了避免过于激进，建议手动添加你的 Demo 可执行文件名：
-# 例如：如果你的 demo 编译出来叫 main 或 test_demo，请取消下方注释并修改：
- main
- demo
- test_*
