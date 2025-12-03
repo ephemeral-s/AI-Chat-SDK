@@ -43,11 +43,12 @@ namespace ai_chat_sdk{
 
     // 获取模型描述
     std::string DeepSeekProvider::getModelDesc() const{
-        return "一款实用性强，中文优化的聊天模型，适用于日常问答与创作";
+        return "由 DeepSeek 开发，是一个轻量级模型，适用于多种自然语言处理任务，如文本生成、问答、翻译等。";
     }
 
     // 发送消息 - 全量返回
-    std::string DeepSeekProvider::sendMessage(const std::vector<Message>& messages, const std::map<std::string, std::string>& requestParams){
+    std::string DeepSeekProvider::sendMessage(const std::vector<Message>& messages, const std::map<std::string, std::string>& requestParams)
+    {
         //1. 检查模型是否可用
         if(!_isAvailable){
             ERR("DeepSeekProvider::sendMessage: model not available");
@@ -230,11 +231,6 @@ namespace ai_chat_sdk{
                 buffer.erase(0, pos + 2); // 移除已处理的数据块
 
                 //解析有效数据
-                //处理空行和注释行
-                if(chunk.empty() || chunk[0] == ':'){
-                    continue;
-                }
-
                 //获取返回的有效数据
                 if(chunk.compare(0, 6, "data: ") == 0){
                     std::string modelData = chunk.substr(6);
