@@ -51,7 +51,7 @@ namespace ai_chat_sdk{
     {
         //1. 检查模型是否可用
         if(!_isAvailable){
-            ERR("DeepSeekProvider::sendMessage: model not available");
+            ERR("DeepSeekProvider::sendMessage: model is not available");
             return "";
         }
 
@@ -100,16 +100,16 @@ namespace ai_chat_sdk{
         //5. 发送POST请求
         auto res = client.Post("/v1/chat/completions", headers, requestBodyStr, "application/json");
         if(!res){
-            ERR("DeepSeekProvider::sendMessage: http request failed");
+            ERR("DeepSeekProvider::sendMessage: http request failed: {}", to_string(res.error()));
             return "";
         }
-        INFO("DeepSeekProvider::sendMessage: http response status = {}", res->status); // 打印响应状态码
-        INFO("DeepSeekProvider::sendMessage: http response body = {}", res->body); // 打印响应体
         //检查响应状态码
         if(res->status != 200){
             ERR("DeepSeekProvider::sendMessage: http request failed, status = {}", res->status);
             return "";
         }
+        INFO("DeepSeekProvider::sendMessage: http response status = {}", res->status); // 打印响应状态码
+        INFO("DeepSeekProvider::sendMessage: http response body = {}", res->body); // 打印响应体
 
         //6. 解析响应体并返回
         Json::Value responseBody;

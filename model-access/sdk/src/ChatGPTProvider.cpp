@@ -49,6 +49,89 @@ namespace ai_chat_sdk{
     // 发送消息 - 全量返回
     std::string ChatGPTProvider::sendMessage(const std::vector<Message>& messages, const std::map<std::string, std::string>& requestParams)
     {
+        //1. 检测模型是否可用
+        if(!_isAvailable){
+            ERR("ChatGPTProvider::sendMessage: model is not available");
+            return "";
+        }
+
+        //2. 构建请求体
+        //构建历史消息
+        Json::Value messageArray(Json::arrayValue);
+        for(const auto& msg : messages){
+            Json::Value message(Json::objectValue);
+            message["role"] = msg._role;
+            message["content"] = msg._content;
+            messageArray.append(message);
+        }
+
+
+        //构建请求参数
+        double temperature = 0.7;
+        int maxOutputTokens = 2048;
+        if(requestParams.find("temperature") != requestParams.end()){
+            temperature = std::stod(requestParams.at("temperature"));
+        }
+        if(requestParams.find("max_output_tokens") != requestParams.end()){
+            maxOutputTokens = std::stoi(requestParams.at("max_output_tokens"));
+        }
+
+        Json::Value requestBody(Json::objectValue);
+        requestBody["model"] = getModelName();
+        requestBody["input"] = messageArray;
+        requestBody["temperature"] = temperature;
+        requestBody["max_output_tokens"] = maxOutputTokens;
+
+        //3. 序列化请求体
+        Json::StreamWriterBuilder writerBuilder;
+        writerBuilder["indentation"] = "";
+        std::string requestBodyStr = Json::writeString(writerBuilder, requestBody);
+
+        //4. 创建http客户端并设置请求头
+        httplib::Client client(_endpoint.c_str());
+        client.set_connection_timeout(30, 0);
+        client.set_read_timeout(60, 0);
+        client.set_proxy("127.0.0.1", 7890); // 设置代理
+
+        httplib::Headers headers = {
+            {"Authorization", "Bearer " + _apiKey}
+        };
+
+        //5. 发送POST请求
+        auto res = client.Post("/v1/responses", headers, requestBodyStr, "application/json");
+        if(!res){
+            ERR("ChatGPTProvider::sendMessage: http request failed: {}", to_string(res.error()));
+            return "";
+        }
+        //检查响应状态码
+        if(res->status != 200){
+            ERR("ChatGPTProvider::sendMessage: http request failed, status code: {}", res->status);
+            return "";
+        }
+        INFO("ChatGPTProvider::sendMessage: http response status = {}", res->status); // 打印响应状态码
+        INFO("ChatGPTProvider::sendMessage: http response body = {}", res->body); // 打印响应体
+
+        //6. 对响应体进行反序列化
+        Json::Value responseBody;
+        Json::CharReaderBuilder readerBuilder;
+        std::string parseError;
+        std::istringstream responseStream(res->body);
+        if(!Json::parseFromStream(readerBuilder, responseStream, &responseBody, &parseError)){
+            ERR("ChatGPTProvider::sendMessage: parse response body failed, error: {}", parseError);
+            return "";
+        }
+        
+        //7. 解析响应体并返回
+        if(responseBody.isMember("output") && responseBody["output"].isArray() && !responseBody["output"].empty()){
+            auto output = responseBody["output"][0];
+            if(output.isMember("content") && output["content"].isArray() && !output["content"].empty() && output["content"][0].isMember("text")){
+                auto replyContent = output["content"][0]["text"].asString();
+                INFO("ChatGPTProvider::sendMessage: reply content = {}", replyContent); // 打印回复内容
+                return replyContent;
+            }
+        }
+
+        ERR("ChatGPTProvider::sendMessage: parse response body failed, error: {}", parseError);
         return "";
     }
 
