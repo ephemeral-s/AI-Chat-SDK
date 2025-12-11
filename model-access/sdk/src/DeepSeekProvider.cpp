@@ -238,6 +238,7 @@ namespace ai_chat_sdk{
                     //先检查是否为结束标记[DONE]
                     if(modelData == "[DONE]"){
                         streamFinished = true;
+                        callback("", true);
                         return true;
                     }
 
