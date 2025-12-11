@@ -246,7 +246,7 @@ namespace ai_chat_sdk{
                         continue;
                     }
                     if(line.compare(0, 6, "event:") == 0){
-                        eventType = line.substr(6);
+                        eventType = line.substr(7);
                     }
                     else if(line.compare(0, 5, "data:") == 0){
                         eventData = line.substr(6);
@@ -264,22 +264,22 @@ namespace ai_chat_sdk{
                 }
 
                 //按照事件类型进行数据分析
-                if(eventType == "response.output_text.delta"){
+                if(eventType == "response.output_text.delta"){ // 模型返回的文本增量
                     if(chunk.isMember("delta") && chunk["delta"].isString()){
                         std::string delta = chunk["delta"].asString();
                         callback(delta, false);
                     }
                 }
-                else if(eventType == "response.output_item.done"){
+                else if(eventType == "response.output_item.done"){ // 模型返回的文本增量结束(包含整个消息)
                     if(chunk.isMember("item") && chunk["item"].isObject()){
                         Json::Value item = chunk["item"];
-                        if(item.isMember("content") && item["content"].isArray() && !item["content"].empty() && item["content"][0].isMember("text")){
-                            std::string delta = item["content"].asString();
-                            callback(delta, false);
+                        if(item.isMember("content") && item["content"].isArray() && !item["content"].empty() && item["content"][0].isMember("text") && 
+                        item["content"][0]["text"].isString()){
+                            fullResponse += item["content"][0]["text"].asString();
                         }
                     }
                 }
-                else if(eventType == "response.completed"){
+                else if(eventType == "response.completed"){ // 模型响应结束
                     streamFinished = true;
                     callback("", true);
                     return true;

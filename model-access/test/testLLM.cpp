@@ -38,9 +38,8 @@ TEST(DeepSeekProviderTest, sendMessage)
     ASSERT_TRUE(!response.empty());
     INFO("response: {}", response);
 }
-#endif
 
-TEST(ChatGPTProviderTest, sendMessage)
+TEST2(ChatGPTProviderTest, sendMessage)
 {
     std::map<std::string, std::string> modelConfig = {
         {"api_key", std::getenv("ChatGPT_api_key")},
@@ -63,6 +62,41 @@ TEST(ChatGPTProviderTest, sendMessage)
 
     std::string response = Provider->sendMessage(messages, requestParams);
 
+    ASSERT_TRUE(!response.empty());
+    INFO("response: {}", response);
+}
+#endif
+
+TEST(DeepSeekProviderTest, sendMessage)
+{
+    std::map<std::string, std::string> modelConfig = {
+        {"api_key", std::getenv("ChatGPT_api_key")},
+        {"endpoint", "https://api.openai.com"}
+    };
+
+    auto Provider = std::make_shared<ai_chat_sdk::ChatGPTProvider>();
+    ASSERT_TRUE(Provider != nullptr);
+    Provider->initModel(modelConfig);
+    ASSERT_TRUE(Provider->isAvailable());
+    
+    std::vector<ai_chat_sdk::Message> messages = {
+        {"user", "你是谁"}
+    };
+
+    std::map<std::string, std::string> requestParams = {
+        {"temperature", "0.7"},
+        {"max_tokens", "2048"}
+    };
+
+    //std::string response = Provider->sendMessage(messages, requestParams);
+
+    auto writeChunk = [&](const std::string& chunk, bool last){
+        INFO("writeChunk: {}", chunk);
+        if(last){
+            INFO("[DONE]");
+        }
+    };
+    std::string response = Provider->sendMessageStream(messages, requestParams, writeChunk);
     ASSERT_TRUE(!response.empty());
     INFO("response: {}", response);
 }
