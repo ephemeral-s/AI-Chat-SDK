@@ -37,7 +37,7 @@ namespace ai_chat_sdk{
 
     // 获取模型名称
     std::string GeminiProvider::getModelName() const{
-        return "gemini-2.0-flash";
+        return "gemini-2.5-flash";
     }
 
     // 获取模型描述
@@ -59,7 +59,7 @@ namespace ai_chat_sdk{
         Json::Value messageArray(Json::arrayValue);
         for(const auto& msg : messages){
             Json::Value message(Json::objectValue);
-            message["role"] = msg.role;
+            message["role"] = msg._role;
             message["content"] = msg._content;
             messageArray.append(message);
         }
@@ -76,7 +76,7 @@ namespace ai_chat_sdk{
 
         Json::Value requestBody(Json::objectValue);
         requestBody["model"] = getModelName();
-        requestBody["contents"] = messageArray;
+        requestBody["messages"] = messageArray;
         requestBody["temperature"] = temperature;
         requestBody["max_tokens"] = maxTokens;
         requestBody["stream"] = false;
@@ -90,18 +90,44 @@ namespace ai_chat_sdk{
         httplib::Client client(_endpoint.c_str());
         client.set_connection_timeout(30, 0);
         client.set_read_timeout(60, 0);
-        client.set_proxy("http://127.0.0.1:7890");
+        client.set_proxy("127.0.0.1", 7890);
 
         httplib::Headers headers = {
             {"Authorization", "Bearer " + _apiKey}
         };
 
         //5. 发送POST请求
-        auto res = client.Post("/v1/models/" + getModelName() + ":generateContent", headers, requestBodyStr, "application/json");
+        auto res = client.Post("/v1beta/openai/chat/completions", headers, requestBodyStr, "application/json");
         if(!res){
-            ERR("GeminiProvider::sendMessage: http request failed, error = {}", res.error());
+            ERR("GeminiProvider::sendMessage: http request failed, error = {}", to_string(res.error()));
             return "";
         }
+        //检查响应状态码
+        if(res->status != 200){
+            ERR("GeminiProvider::sendMessage: http request failed, status = {}", res->status);
+            return "";
+        }
+        INFO("GeminiProvider::sendMessage: http response status = {}", res->status); // 打印响应状态码
+        INFO("GeminiProvider::sendMessage: http response body = {}", res->body); // 打印响应体
+
+        //6. 解析响应体并返回
+        Json::Value responseBody;
+        Json::CharReaderBuilder readerBuilder;
+        std::string parseError;
+        std::istringstream responseStream(res->body);
+        if(Json::parseFromStream(readerBuilder, responseStream, &responseBody, &parseError)){
+            if(responseBody.isMember("choices") && responseBody["choices"].isArray() && !responseBody["choices"].empty()){
+                auto choice = responseBody["choices"][0];
+                if(choice.isMember("message") && choice["message"].isMember("content")){
+                    auto replyContent = choice["message"]["content"].asString();
+                    INFO("GeminiProvider::sendMessage: replyContent = {}", replyContent);
+                    return replyContent;
+                }
+            }
+        }
+       
+        //解析失败
+        ERR("GeminiProvider::sendMessage: parse response body failed, error = {}", parseError);
         return "";
     }
 

@@ -129,7 +129,7 @@ namespace ai_chat_sdk{
 
         //解析失败
         ERR("DeepSeekProvider::sendMessage: parse response body failed, error = {}", parseError);
-        return "deepseek parse response body failed";
+        return "";
     }
 
     // 发送消息 - 流式返回

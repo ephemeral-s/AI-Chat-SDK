@@ -113,7 +113,7 @@ namespace ai_chat_sdk{
         INFO("ChatGPTProvider::sendMessage: http response status = {}", res->status); // 打印响应状态码
         INFO("ChatGPTProvider::sendMessage: http response body = {}", res->body); // 打印响应体
 
-        //6. 对响应体进行反序列化
+        //6. 解析响应体并返回
         Json::Value responseBody;
         Json::CharReaderBuilder readerBuilder;
         std::string parseError;
@@ -122,8 +122,7 @@ namespace ai_chat_sdk{
             ERR("ChatGPTProvider::sendMessage: parse response body failed, error: {}", parseError);
             return "";
         }
-        
-        //7. 解析响应体并返回
+
         if(responseBody.isMember("output") && responseBody["output"].isArray() && !responseBody["output"].empty()){
             auto output = responseBody["output"][0];
             if(output.isMember("content") && output["content"].isArray() && !output["content"].empty() && output["content"][0].isMember("text")){

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <spdlog/common.h>
-#include "../sdk/include/ChatGPTProvider.h"
+#include "../sdk/include/GeminiProvider.h"
 #include "../sdk/include/util/myLog.h"
 
 #if 0
@@ -65,7 +65,6 @@ TEST2(ChatGPTProviderTest, sendMessage)
     ASSERT_TRUE(!response.empty());
     INFO("response: {}", response);
 }
-#endif
 
 TEST(DeepSeekProviderTest, sendMessage)
 {
@@ -97,6 +96,34 @@ TEST(DeepSeekProviderTest, sendMessage)
         }
     };
     std::string response = Provider->sendMessageStream(messages, requestParams, writeChunk);
+    ASSERT_TRUE(!response.empty());
+    INFO("response: {}", response);
+}
+#endif
+
+TEST(GeminiProviderTest, sendMessage)
+{
+    std::map<std::string, std::string> modelConfig = {
+        {"api_key", std::getenv("Gemini_api_key")},
+        {"endpoint", "https://generativelanguage.googleapis.com"}
+    };
+
+    auto Provider = std::make_shared<ai_chat_sdk::GeminiProvider>();
+    ASSERT_TRUE(Provider != nullptr);
+    Provider->initModel(modelConfig);
+    ASSERT_TRUE(Provider->isAvailable());
+    
+    std::vector<ai_chat_sdk::Message> messages = {
+        {"user", "你是谁"}
+    };
+
+    std::map<std::string, std::string> requestParams = {
+        {"temperature", "0.7"},
+        {"max_tokens", "2048"}
+    };
+
+    std::string response = Provider->sendMessage(messages, requestParams);
+
     ASSERT_TRUE(!response.empty());
     INFO("response: {}", response);
 }
