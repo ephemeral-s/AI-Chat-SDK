@@ -93,8 +93,7 @@ namespace ai_chat_sdk{
         client.set_read_timeout(60, 0);
 
         httplib::Headers headers = {
-            {"Authorization", "Bearer " + _apiKey},
-            {"Content-Type", "application/json"}
+            {"Authorization", "Bearer " + _apiKey}
         };
 
         //5. 发送POST请求
