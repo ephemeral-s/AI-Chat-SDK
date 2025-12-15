@@ -50,7 +50,7 @@ namespace ai_chat_sdk{
     std::string DeepSeekProvider::sendMessage(const std::vector<Message>& messages, const std::map<std::string, std::string>& requestParams)
     {
         //1. 检查模型是否可用
-        if(!_isAvailable){
+        if(!isAvailable()){
             ERR("DeepSeekProvider::sendMessage: model is not available");
             return "";
         }
@@ -138,7 +138,7 @@ namespace ai_chat_sdk{
                                                     std::function<void(const std::string&, bool)> callback)
     {
         //1. 检查模型是否可用
-        if(!_isAvailable){
+        if(!isAvailable()){
             ERR("DeepSeekProvider::sendMessageStream: model not available");
             return "";
         }
