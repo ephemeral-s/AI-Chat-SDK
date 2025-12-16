@@ -248,6 +248,7 @@ namespace ai_chat_sdk{
                         if(modelDataJson.isMember("choices") && 
                             modelDataJson["choices"].isArray() &&   
                             !modelDataJson["choices"].empty() && 
+                            modelDataJson["choices"][0].isObject() &&
                             modelDataJson["choices"][0].isMember("delta") &&
                             modelDataJson["choices"][0]["delta"].isMember("content")){
                             std::string deltaContent = modelDataJson["choices"][0]["delta"]["content"].asString();
