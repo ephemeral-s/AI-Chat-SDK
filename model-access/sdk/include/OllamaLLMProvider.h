@@ -27,6 +27,5 @@ namespace ai_chat_sdk{
     private:
         std::string _modelName; // 模型名称
         std::string _modelDesc; // 模型描述
-        //注：本地模型不需要API密钥
     };
 }
