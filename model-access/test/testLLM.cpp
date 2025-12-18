@@ -101,6 +101,34 @@ TEST(DeepSeekProviderTest, sendMessage)
 }
 #endif
 
+// TEST(OllamaLLMProviderTest, sendMessage)
+// {
+//     std::map<std::string, std::string> modelConfig = {
+//         {"model_name", "deepseek-r1:1.5b"},
+//         {"model_desc", "本地部署开源模型deepseek-r1 1.5b"},
+//         {"endpoint", "http://192.168.58.1:11434"}
+//     };
+
+//     auto Provider = std::make_shared<ai_chat_sdk::OllamaLLMProvider>();
+//     ASSERT_TRUE(Provider != nullptr);
+//     Provider->initModel(modelConfig);
+//     ASSERT_TRUE(Provider->isAvailable());
+    
+//     std::vector<ai_chat_sdk::Message> messages = {
+//         {"user", "你是谁"}
+//     };
+
+//     std::map<std::string, std::string> requestParams = {
+//         {"temperature", "0.7"},
+//         {"max_tokens", "2048"}
+//     };
+
+//     std::string response = Provider->sendMessage(messages, requestParams);
+
+//     ASSERT_TRUE(!response.empty());
+//     INFO("response: {}", response);
+// }
+
 TEST(OllamaLLMProviderTest, sendMessage)
 {
     std::map<std::string, std::string> modelConfig = {
@@ -123,45 +151,18 @@ TEST(OllamaLLMProviderTest, sendMessage)
         {"max_tokens", "2048"}
     };
 
-    std::string response = Provider->sendMessage(messages, requestParams);
+    //std::string response = Provider->sendMessage(messages, requestParams);
 
+    auto writeChunk = [&](const std::string& chunk, bool last){
+        INFO("writeChunk: {}", chunk);
+        if(last){
+            INFO("[DONE]");
+        }
+    };
+    std::string response = Provider->sendMessageStream(messages, requestParams, writeChunk);
     ASSERT_TRUE(!response.empty());
     INFO("response: {}", response);
 }
-
-// TEST(GeminiProviderTest, sendMessage)
-// {
-//     std::map<std::string, std::string> modelConfig = {
-//         {"api_key", std::getenv("Gemini_api_key")},
-//         {"endpoint", "https://generativelanguage.googleapis.com"}
-//     };
-
-//     auto Provider = std::make_shared<ai_chat_sdk::GeminiProvider>();
-//     ASSERT_TRUE(Provider != nullptr);
-//     Provider->initModel(modelConfig);
-//     ASSERT_TRUE(Provider->isAvailable());
-    
-//     std::vector<ai_chat_sdk::Message> messages = {
-//         {"user", "介绍一下C++语言"}
-//     };
-
-//     std::map<std::string, std::string> requestParams = {
-//         {"temperature", "0.7"},
-//         {"max_tokens", "2048"}
-//     };
-
-//     //std::string response = Provider->sendMessage(messages, requestParams);
-
-//     auto writeChunk = [&](const std::string& chunk, bool last){
-//         INFO("writeChunk: {}", chunk);
-//         if(last){
-//             INFO("[DONE]");
-//         }
-//     };
-//     std::string response = Provider->sendMessageStream(messages, requestParams, writeChunk);
-//     ASSERT_TRUE(!response.empty());
-//     INFO("response: {}", response);
-// }
 
 int main()
 {
