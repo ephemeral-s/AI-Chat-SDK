@@ -227,6 +227,8 @@ namespace ai_chat_sdk{
                 std::string chunk = buffer.substr(0, pos);
                 buffer.erase(0, pos + 2); // 移除已处理的数据块
 
+                if(chunk.empty()) continue;
+
                 //解析有效数据
                 //获取返回的有效数据
                 if(chunk.compare(0, 6, "data: ") == 0){

@@ -235,6 +235,8 @@ namespace ai_chat_sdk{
                 std::string event = buffer.substr(0, pos);
                 buffer.erase(0, pos + 2); // 移除已处理的数据块
 
+                if(event.empty()) continue;
+
                 //解析事件类型和具体数据的位置
                 std::istringstream eventStream(event);
                 std::string eventType;
@@ -252,7 +254,7 @@ namespace ai_chat_sdk{
                     }
                 }
 
-                //对模型返回结果进行序列化
+                //对模型返回结果进行反序列化
                 Json::Value chunk;
                 Json::CharReaderBuilder readerBuilder;
                 std::string errs;

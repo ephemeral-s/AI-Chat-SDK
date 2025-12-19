@@ -143,7 +143,7 @@ TEST(OllamaLLMProviderTest, sendMessage)
     ASSERT_TRUE(Provider->isAvailable());
     
     std::vector<ai_chat_sdk::Message> messages = {
-        {"user", "你是谁"}
+        {"user", "介绍一下C++语言"}
     };
 
     std::map<std::string, std::string> requestParams = {

@@ -161,11 +161,14 @@ namespace ai_chat_sdk{
             maxTokens = std::stoi(requestParams.at("max_tokens"));
         }
 
+        Json::Value options(Json::objectValue);
+        options["temperature"] = temperature;
+        options["num_ctx"] = maxTokens;
+
         Json::Value requestBody(Json::objectValue);
         requestBody["model"] = getModelName();
         requestBody["messages"] = messageArray;
-        requestBody["temperature"] = temperature;
-        requestBody["num_ctx"] = maxTokens;
+        requestBody["options"] = options;
         requestBody["stream"] = true;
 
         //3. 序列化请求体
@@ -179,8 +182,7 @@ namespace ai_chat_sdk{
         client.set_read_timeout(300, 0);
 
         httplib::Headers headers = {
-            {"Content-Type", "application/json"},
-            {"Accept", "text/event-stream"}
+            {"Content-Type", "application/json"}
         };
 
         //流式响应处理变量
@@ -224,7 +226,9 @@ namespace ai_chat_sdk{
             while((pos = buffer.find("\n")) != std::string::npos){
                 //截取当前找到的数据块
                 std::string modelDataStr = buffer.substr(0, pos);
-                buffer.erase(0, pos + 2); // 移除已处理的数据块
+                buffer.erase(0, pos + 1); // 移除已处理的数据块
+
+                if(modelDataStr.empty()) continue;
 
                 //反序列化解析有效数据
                 Json::Value modelDataJson;
@@ -233,28 +237,28 @@ namespace ai_chat_sdk{
                 std::istringstream modelDataStream(modelDataStr);
                 if(Json::parseFromStream(reader, modelDataStream, &modelDataJson, &errs)){
                     //先判断是否为结尾数据
-                    if(modelDataJson.isMember("done") && modelDataJson["done"].isBool() && modelDataJson["done"] == true){
+                    if(modelDataJson.get("done", false).asBool()){
                         streamFinished = true;
                         callback("", true);
                         return true;
                     }
-                    //解析有效数据
-                    else if(modelDataJson.isMember("done") && modelDataJson["done"].isBool() && modelDataJson["done"] == false){
-                        if(modelDataJson.isMember("message") && modelDataJson["message"].isObject() && modelDataJson["message"].isMember("content")){
-                            std::string deltaContent = modelDataJson["message"]["content"].asString();
-                            fullResponse += deltaContent;
 
-                            //将本次提取到的有效数据返回给调用者使用
-                            callback(deltaContent, false);
-                        }
+                    //解析有效数据
+                    if(modelDataJson.isMember("message") && modelDataJson["message"].isObject() && modelDataJson["message"].isMember("content")){
+                        std::string deltaContent = modelDataJson["message"]["content"].asString();
+                        fullResponse += deltaContent;
+
+                        //将本次提取到的有效数据返回给调用者使用
+                        callback(deltaContent, false);
                     }else{
                         WRN("OllamaLLMProvider::sendMessageStream: parse modelDataJson failed, err = {}", errs);
                         return false;
-                     }
+                    }
                 }
             }
             return true;
         };
+
         //6. 给模型发送请求
         auto res = client.send(req);
         if(!res){
