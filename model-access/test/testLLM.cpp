@@ -132,7 +132,7 @@ TEST(DeepSeekProviderTest, sendMessage)
 TEST(OllamaLLMProviderTest, sendMessage)
 {
     std::map<std::string, std::string> modelConfig = {
-        {"model_name", "deepseek-r1:1.5b"},
+        {"model_name", "deepseek-r1-original:1.5b"},
         {"model_desc", "本地部署开源模型deepseek-r1 1.5b"},
         {"endpoint", "http://192.168.58.1:11434"}
     };
