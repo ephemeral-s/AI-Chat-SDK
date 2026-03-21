@@ -77,7 +77,7 @@ namespace ai_chat_sdk{
     //更新会话时间戳
     void SessionManager::updateSessionTimestamp(const std::string& sessionId){
         std::unique_lock<std::mutex> lock(_mutex);
-        
+         
         // 查找会话
         auto it = getSession(sessionId);
         if(!it) return;
