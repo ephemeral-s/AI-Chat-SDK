@@ -1,4 +1,4 @@
-# ModelVerse
+# AI-Chat-SDK
 
 #### Description
 An all-in-one SDK for integrating and managing large-scale AI models (LLMs).
