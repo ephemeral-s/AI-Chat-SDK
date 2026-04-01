@@ -8,7 +8,7 @@
 namespace ai_chat_sdk{
     class DataManager{
     public:
-        DataManager(const std::string& dbName);
+        DataManager(const std::string& dbName = "chatdb.db");
         ~DataManager();
 
         //Session相关操作
@@ -26,6 +26,8 @@ namespace ai_chat_sdk{
         std::vector<std::shared_ptr<SessionInfo>> getAllSessions() const;
         //获取会话总数
         size_t getSessionCount() const;
+        //清空所有会话
+        void clearSessions();
 
         //Message相关操作
         //插入消息（需要更新会话时间戳）

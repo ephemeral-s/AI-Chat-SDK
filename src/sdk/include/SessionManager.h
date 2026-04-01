@@ -1,5 +1,6 @@
 #pragma once
 #include "common.h"
+#include "DataManager.h"
 #include <cstddef>
 #include <unordered_map>
 #include <string>
@@ -10,6 +11,8 @@
 namespace ai_chat_sdk{
     class SessionManager{
     public:
+        SessionManager(const std::string& dbName);
+
         //新建会话（提供模型名称）
         std::string createSession(const std::string& modelName);
         //通过会话ID获取会话信息
@@ -35,5 +38,6 @@ namespace ai_chat_sdk{
 
         std::string generateSessionId(); // 生成唯一会话ID
         std::string generateMessageId(size_t messageCounter); // 生成唯一消息ID
+        DataManager _dataManager; // 数据管理器实例    
     };
 }

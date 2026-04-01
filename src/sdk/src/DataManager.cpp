@@ -315,6 +315,33 @@ namespace ai_chat_sdk{
         return count;
     }
 
+    //清空所有会话
+    void DataManager::clearSessions(){
+        std::unique_lock<std::mutex> lock(_mutex);
+        std::string clearSessions = R"(
+            DELETE FROM sessions
+        )";
+
+        //准备SQL语句
+        sqlite3_stmt* stmt = nullptr;
+        int rc = sqlite3_prepare_v2(_db, clearSessions.c_str(), -1, &stmt, nullptr);
+        if(rc != SQLITE_OK){
+            ERR("clearSessions 准备SQL语句失败：{}", sqlite3_errmsg(_db));
+            return;
+        }
+        
+        //执行SQL语句
+        rc = sqlite3_step(stmt);
+        if(rc != SQLITE_DONE){
+            ERR("clearSessions 执行SQL语句失败：{}", sqlite3_errmsg(_db));
+            sqlite3_finalize(stmt);
+            return;
+        }
+        sqlite3_finalize(stmt);
+        INFO("clearSessions 会话列表清空成功");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //插入消息（需要更新会话时间戳）
     bool DataManager::insertMessage(const std::string& sessionId, const Message& message){
         std::unique_lock<std::mutex> lock(_mutex);
