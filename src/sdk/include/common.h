@@ -11,7 +11,7 @@ namespace ai_chat_sdk{
         time_t _timestamp;        // 时间戳
 
         // 构造函数
-        Message(const std::string& role, const std::string& content)
+        Message(const std::string& role = "", const std::string& content = "")
             :_role(role), _content(content) 
         {}
     };
