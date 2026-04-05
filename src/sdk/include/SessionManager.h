@@ -11,6 +11,8 @@
 namespace ai_chat_sdk{
     class SessionManager{
     public:
+        SessionManager() = default;
+        ~SessionManager() = default;
         SessionManager(const std::string& dbName);
 
         //新建会话（提供模型名称）

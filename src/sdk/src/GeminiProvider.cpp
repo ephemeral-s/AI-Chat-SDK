@@ -19,8 +19,7 @@ namespace ai_chat_sdk{
         //初始化调用地址
         it = modelConfig.find("endpoint");
         if(it == modelConfig.end()){
-            ERR("GeminiProvider::initModel: endpoint not found in modelConfig");
-            return false;
+            _endpoint = "https://generativelanguage.googleapis.com";
         }else{
             _endpoint = it->second;
         }
@@ -37,7 +36,7 @@ namespace ai_chat_sdk{
 
     // 获取模型名称
     std::string GeminiProvider::getModelName() const{
-        return "gemini-2.5-flash";
+        return "gemini-3-flash-preview";
     }
 
     // 获取模型描述

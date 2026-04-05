@@ -50,11 +50,7 @@ namespace ai_chat_sdk{
     //检测指定模型是否可用
     bool LLMManager::IsModelAvailable(const std::string& modelName) const{
         auto it = _modelInfos.find(modelName);
-        if(it == _modelInfos.end()){
-            ERR("Model {} not registered", modelName);
-            return false;
-        }
-        return it->second._isAvailable;
+        return it != _modelInfos.end() && it->second._isAvailable;
     }
 
     //发送消息给指定模型 -- 全量返回

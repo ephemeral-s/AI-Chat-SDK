@@ -20,8 +20,7 @@ namespace ai_chat_sdk{
         // 初始化调用地址
         it = modelConfig.find("endpoint");
         if(it == modelConfig.end()){
-            ERR("DeepSeekProvider::initModel: endpoint not found in modelConfig");
-            return false;
+            _endpoint = "https://api.deepseek.com";
         }else{
             _endpoint = it->second;
         }

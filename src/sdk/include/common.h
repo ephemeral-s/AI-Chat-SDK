@@ -1,4 +1,5 @@
 #pragma once
+#include <ctime>
 #include <string>
 #include <vector>
 
@@ -12,7 +13,7 @@ namespace ai_chat_sdk{
 
         // 构造函数
         Message(const std::string& role = "", const std::string& content = "")
-            :_role(role), _content(content) 
+            :_role(role), _content(content), _timestamp(std::time(nullptr))
         {}
     };
 
@@ -21,11 +22,20 @@ namespace ai_chat_sdk{
         std::string _modelName;        // 模型名称
         double _temperature = 0.7;     // 温度参数，决定生成文本的多样性
         int _maxTokens = 2048;         // 最大 tokens，限制生成文本的长度
+
+        virtual ~Config() = default; // 添加虚函数，确保dynamic_pointer_cast可以正常工作
     };
 
     // 通过 API 访问模型的配置信息
     struct ApiConfig : public Config{
         std::string _apiKey;           // API 密钥
+    };
+
+    //通过ollama配置的模型，不需要API密钥
+    struct OllamaConfig : public Config{
+        std::string _modelName;        // 模型名称
+        std::string _modelDesc;      // 模型描述
+        std::string _endpoint;         // API 调用地址
     };
 
     // 模型信息

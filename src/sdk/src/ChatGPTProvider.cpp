@@ -22,8 +22,7 @@ namespace ai_chat_sdk{
         // 初始化调用地址
         it = modelConfig.find("endpoint");
         if(it == modelConfig.end()){
-            ERR("ChatGPTProvider::initModel: endpoint not found in modelConfig");
-            return false;
+            _endpoint = "https://ai.td.ee";
         }else{
             _endpoint = it->second;
         }
@@ -40,12 +39,12 @@ namespace ai_chat_sdk{
 
     // 获取模型名称
     std::string ChatGPTProvider::getModelName() const{
-        return "gpt-4o-mini";
+        return "gpt-5.4";
     }
 
     //获取模型描述
     std::string ChatGPTProvider::getModelDesc() const{
-        return "gpt-4o-mini 是一个基于 GPT-4 架构的模型，由 OpenAI 开发。它是一个轻量级模型，适用于多种自然语言处理任务，如文本生成、问答、翻译等。";
+        return "GPT-5.4 是 OpenAI 在 2026 年 3 月 5 日正式发布的旗舰级模型。它是 GPT-5 系列中一个极具里程碑意义的迭代，标志着 AI 从“对话辅助”真正转向了“自主执行（Agentic AI）”。";
     }
 
     // 发送消息 - 全量返回
@@ -74,8 +73,8 @@ namespace ai_chat_sdk{
         if(requestParams.find("temperature") != requestParams.end()){
             temperature = std::stod(requestParams.at("temperature"));
         }
-        if(requestParams.find("max_output_tokens") != requestParams.end()){
-            maxOutputTokens = std::stoi(requestParams.at("max_output_tokens"));
+        if(requestParams.find("max_tokens") != requestParams.end()){
+            maxOutputTokens = std::stoi(requestParams.at("max_tokens"));
         }
 
         Json::Value requestBody(Json::objectValue);
@@ -164,8 +163,8 @@ namespace ai_chat_sdk{
         if(requestParams.find("temperature") != requestParams.end()){
             temperature = std::stod(requestParams.at("temperature"));
         }
-        if(requestParams.find("max_output_tokens") != requestParams.end()){
-            maxOutputTokens = std::stoi(requestParams.at("max_output_tokens"));
+        if(requestParams.find("max_tokens") != requestParams.end()){
+            maxOutputTokens = std::stoi(requestParams.at("max_tokens"));
         }
 
         Json::Value requestBody(Json::objectValue);

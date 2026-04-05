@@ -20,7 +20,7 @@ namespace ai_chat_sdk{
             _db = nullptr;
             ERR("初始化数据库表失败");
         }
-        INFO("数据库表初始化成功");
+        else INFO("数据库表初始化成功");
     }
 
     DataManager::~DataManager(){
@@ -57,7 +57,6 @@ namespace ai_chat_sdk{
                 create_time INTEGER NOT NULL,
                 FOREIGN KEY (session_id) REFERENCES sessions (session_id) ON DELETE CASCADE
                 )
-            );
         )";
         if(!execSQL(createMessageTable)){
             return false;
@@ -344,43 +343,41 @@ namespace ai_chat_sdk{
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     //插入消息（需要更新会话时间戳）
     bool DataManager::insertMessage(const std::string& sessionId, const Message& message){
-        std::unique_lock<std::mutex> lock(_mutex);
-        std::string insertMessage = R"(
-            INSERT INTO messages (message_id, session_id, role, content, create_time)
-            VALUES (?, ?, ?, ?, ?)
-        )";
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            std::string insertMessage = R"(
+                INSERT INTO messages (message_id, session_id, role, content, create_time)
+                VALUES (?, ?, ?, ?, ?)
+            )";
 
-        //准备SQL语句
-        sqlite3_stmt* stmt = nullptr;
-        int rc = sqlite3_prepare_v2(_db, insertMessage.c_str(), -1, &stmt, nullptr);
-        if(rc != SQLITE_OK){
-            ERR("insertMessage 准备SQL语句失败：{}", sqlite3_errmsg(_db));
-            return false;
-        }
-        
-        //绑定参数
-        rc = sqlite3_bind_text(stmt, 1, message._id.c_str(), -1, SQLITE_STATIC);
-        rc = sqlite3_bind_text(stmt, 2, sessionId.c_str(), -1, SQLITE_STATIC);
-        rc = sqlite3_bind_text(stmt, 3, message._role.c_str(), -1, SQLITE_STATIC);
-        rc = sqlite3_bind_text(stmt, 4, message._content.c_str(), -1, SQLITE_STATIC);
-        rc = sqlite3_bind_int64(stmt, 5, static_cast<int64_t>(message._timestamp));
-        
-        //执行SQL语句
-        rc = sqlite3_step(stmt);
-        if(rc != SQLITE_DONE){
-            ERR("insertMessage 执行SQL语句失败：{}", sqlite3_errmsg(_db));
+            //准备SQL语句
+            sqlite3_stmt* stmt = nullptr;
+            int rc = sqlite3_prepare_v2(_db, insertMessage.c_str(), -1, &stmt, nullptr);
+            if(rc != SQLITE_OK){
+                ERR("insertMessage 准备SQL语句失败：{}", sqlite3_errmsg(_db));
+                return false;
+            }
+
+            //绑定参数
+            rc = sqlite3_bind_text(stmt, 1, message._id.c_str(), -1, SQLITE_STATIC);
+            rc = sqlite3_bind_text(stmt, 2, sessionId.c_str(), -1, SQLITE_STATIC);
+            rc = sqlite3_bind_text(stmt, 3, message._role.c_str(), -1, SQLITE_STATIC);
+            rc = sqlite3_bind_text(stmt, 4, message._content.c_str(), -1, SQLITE_STATIC);
+            rc = sqlite3_bind_int64(stmt, 5, static_cast<int64_t>(message._timestamp));
+
+            //执行SQL语句
+            rc = sqlite3_step(stmt);
+            if(rc != SQLITE_DONE){
+                ERR("insertMessage 执行SQL语句失败：{}", sqlite3_errmsg(_db));
+                sqlite3_finalize(stmt);
+                return false;
+            }
             sqlite3_finalize(stmt);
-            return false;
+            INFO("insertMessage 消息插入成功");
         }
-        sqlite3_finalize(stmt);
-        INFO("insertMessage 消息插入成功");
 
         //更新时间
-        if(!updateSessionTimestamp(sessionId, message._timestamp)){
-            ERR("insertMessage 更新时间戳失败：{}", sessionId);
-            return false;
-        }
-        return true;
+        return updateSessionTimestamp(sessionId, message._timestamp);
     }
 
     //获取指定会话的历史消息
