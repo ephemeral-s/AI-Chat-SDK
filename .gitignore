@@ -44,6 +44,8 @@ install_manifest.txt
 build/
 bin/
 lib/
+src/test/SQLiteTest/student.db
+src/test/SQLiteTest/testSQLite3
 
 # IDEs and Editors
 .vscode/
