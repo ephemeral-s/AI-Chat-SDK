@@ -360,4 +360,42 @@ namespace ai_chat_server{
             return true; // 表明后续还有数据，因为消息是异步发送的
         });
     }
+
+    //设置HTTP路由规则
+    void ChatServer::setHttpRoutes(){
+        //处理创建会话请求
+        _server->Post("api/session", [this](const httplib::Request& request, httplib::Response& response){
+            this->handleCreateSession(request, response);
+        });
+
+        //处理获取会话列表
+        _server->Get("api/sessions", [this](const httplib::Request& request, httplib::Response& response){
+            this->handleGetSessionList(request, response);
+        });
+
+        //处理获取模型列表
+        _server->Get("api/models", [this](const httplib::Request& request, httplib::Response& response){
+            this->handleGetModelList(request, response);
+        });
+
+        //处理删除会话请求
+        _server->Delete("api/session/${session_id}", [this](const httplib::Request& request, httplib::Response& response){
+            this->handleDeleteSession(request, response);
+        });
+
+        //处理获取历史消息请求
+        _server->Get("api/session/${session_id}/history", [this](const httplib::Request& request, httplib::Response& response){
+            this->handleGetHistory(request, response);
+        });
+
+        //处理发送消息请求 - 全量返回
+        _server->Post("api/message", [this](const httplib::Request& request, httplib::Response& response){
+            this->handleSendMessage(request, response);
+        });
+
+        //处理发送消息请求 - 流式返回
+        _server->Post("api/message/async", [this](const httplib::Request& request, httplib::Response& response){
+            this->handleSendMessageStream(request, response);
+        });
+    }
 }

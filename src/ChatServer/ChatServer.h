@@ -55,6 +55,9 @@ namespace ai_chat_server{
         void handleSendMessage(const httplib::Request& request, httplib::Response& response);
         //处理发送消息请求 - 流式返回
         void handleSendMessageStream(const httplib::Request& request, httplib::Response& response);
+
+        //设置HTTP路由规则
+        void setHttpRoutes();
     private:
         std::unique_ptr<httplib::Server> _server = nullptr; // 服务器
         std::unique_ptr<ai_chat_sdk::ChatSDK> _chatSDK = nullptr; // 聊天SDK
