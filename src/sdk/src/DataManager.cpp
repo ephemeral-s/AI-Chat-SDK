@@ -119,49 +119,53 @@ namespace ai_chat_sdk{
 
     //获取指定会话
     std::shared_ptr<SessionInfo> DataManager::getSession(const std::string& sessionId) const {
-        std::unique_lock<std::mutex> lock(_mutex);
-        std::string selectSession = R"(
+        std::shared_ptr<SessionInfo> sessionInfo;
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            std::string selectSession = R"(
             SELECT model_name, create_time, update_time FROM sessions WHERE session_id = ?
         )";
 
-        //准备SQL语句
-        sqlite3_stmt* stmt = nullptr;
-        int rc = sqlite3_prepare_v2(_db, selectSession.c_str(), -1, &stmt, nullptr);
-        if(rc != SQLITE_OK){
-            ERR("getSession 准备SQL语句失败：{}", sqlite3_errmsg(_db));
-            return nullptr;
-        }
-        
-        //绑定参数
-        rc = sqlite3_bind_text(stmt, 1, sessionId.c_str(), -1, SQLITE_STATIC);
-        
-        //执行SQL语句
-        rc = sqlite3_step(stmt);
-        if(rc != SQLITE_ROW){
-            ERR("getSession 执行SQL语句失败：{}", sqlite3_errmsg(_db));
-            sqlite3_finalize(stmt);
-            return nullptr;
-        }
-        
-        //提取结果
-        std::string modelName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-        int64_t createTime = sqlite3_column_int64(stmt, 1);
-        int64_t lastActiveTime = sqlite3_column_int64(stmt, 2);
+            //准备SQL语句
+            sqlite3_stmt* stmt = nullptr;
+            int rc = sqlite3_prepare_v2(_db, selectSession.c_str(), -1, &stmt, nullptr);
+            if(rc != SQLITE_OK){
+                ERR("getSession 准备SQL语句失败：{}", sqlite3_errmsg(_db));
+                return nullptr;
+            }
 
-        //创建会话对象
-        std::shared_ptr<SessionInfo> sessionInfo = std::make_shared<SessionInfo>(modelName);
-        sessionInfo->_sessionId = sessionId;
-        sessionInfo->_createTime = static_cast<time_t>(createTime);
-        sessionInfo->_lastActiveTime = static_cast<time_t>(lastActiveTime);
+            //绑定参数
+            rc = sqlite3_bind_text(stmt, 1, sessionId.c_str(), -1, SQLITE_STATIC);
+
+            //执行SQL语句
+            rc = sqlite3_step(stmt);
+            if(rc != SQLITE_ROW){
+                ERR("getSession 执行SQL语句失败：{}", sqlite3_errmsg(_db));
+                sqlite3_finalize(stmt);
+                return nullptr;
+            }
+
+            //提取结果
+            std::string modelName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+            int64_t createTime = sqlite3_column_int64(stmt, 1);
+            int64_t lastActiveTime = sqlite3_column_int64(stmt, 2);
+
+            //创建会话对象
+            sessionInfo = std::make_shared<SessionInfo>(modelName);
+            sessionInfo->_sessionId = sessionId;
+            sessionInfo->_createTime = static_cast<time_t>(createTime);
+            sessionInfo->_lastActiveTime = static_cast<time_t>(lastActiveTime);
+
+            //释放SQL语句后再解锁，避免后续递归获取同一把锁导致死锁
+            sqlite3_finalize(stmt);
+        }
 
         //获取该会话中的所有消息
         sessionInfo->_messages = getHistroyMessages(sessionId);
-
-        //释放SQL语句
-        sqlite3_finalize(stmt);
         INFO("getSession 会话获取成功：{}", sessionId);
         return sessionInfo;
     }
+
 
     //更新指定会话的时间戳
     bool DataManager::updateSessionTimestamp(const std::string& sessionId, std::time_t timestamp){
