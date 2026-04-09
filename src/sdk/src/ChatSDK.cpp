@@ -11,6 +11,9 @@
 
 
 namespace ai_chat_sdk{
+    ChatSDK::ChatSDK()
+        : _initialized(false), _sessionManager("chatdb.db") {}
+
     //注册所支持的模型
     bool ChatSDK::registerAllProviders(const std::vector<std::shared_ptr<Config>>& configs){
         //注册云端模型
@@ -215,7 +218,10 @@ namespace ai_chat_sdk{
 
         //根据SessionId构造消息，并添加到历史消息中
         Message newMessage("user", message);
-        _sessionManager.addMessage(sessionId, newMessage);
+        if(!_sessionManager.addMessage(sessionId, newMessage)){
+            ERR("Failed to add message to session {}", sessionId);
+            return "";
+        }
         auto historyMessages = _sessionManager.getHistroyMessages(sessionId);
 
         //获取会话对象

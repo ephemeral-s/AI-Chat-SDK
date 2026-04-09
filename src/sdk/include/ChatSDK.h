@@ -12,6 +12,7 @@
 namespace ai_chat_sdk{
     class ChatSDK{
     public:
+        ChatSDK();
         //初始化模型
         bool initModels(const std::vector<std::shared_ptr<Config>>& configs);
         //创建会话

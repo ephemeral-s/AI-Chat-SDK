@@ -21,7 +21,7 @@ namespace ai_chat_sdk{
     std::string SessionManager::generateSessionId(){
         _sessionCounter++;
         std::ostringstream os;
-        os << "_session" << std::to_string(time(nullptr)) << "_" << std::setw(8) << std::setfill('0') << _sessionCounter;
+        os << "session" << "_" << std::to_string(time(nullptr)) << "_" << std::setw(8) << std::setfill('0') << _sessionCounter;
         return os.str();
     }
 
@@ -52,7 +52,7 @@ namespace ai_chat_sdk{
 
     //通过会话ID获取会话信息
     std::shared_ptr<SessionInfo> SessionManager::getSession(const std::string& sessionId){
-        //现在内存中查找
+        //先在内存中查找
         _mutex.lock();
         auto it = _sessions.find(sessionId);
         if(it != _sessions.end()){
@@ -70,6 +70,7 @@ namespace ai_chat_sdk{
             it = _sessions.find(sessionId);
             if(it == _sessions.end()){
                 _sessions[sessionId] = session;
+                it = _sessions.find(sessionId); // 更新it，防止迭代器失效问题
             }
             _mutex.unlock(); // 注意防止死锁
             it->second->_messages = _dataManager.getHistroyMessages(sessionId);
