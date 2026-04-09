@@ -3,6 +3,7 @@
 #include <httplib.h>
 #include <ai_chat_sdk/ChatSDK.h>
 #include <ai_chat_sdk/util/myLog.h>
+#include <atomic>
 #include <memory>
 #include <string>
 #include <iostream>
