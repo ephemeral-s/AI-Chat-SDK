@@ -84,7 +84,7 @@ namespace ai_chat_server{
         setHttpRoutes();
 
         //设置静态资源路径 没有具体路径时，默认指向index.html
-        _server->set_mount_point("/", "./www");
+        _server->set_mount_point("/", "../www");
 
         _isRunning.store(true);
         INFO("starting server on {}:{}", _config.host, _config.port);
