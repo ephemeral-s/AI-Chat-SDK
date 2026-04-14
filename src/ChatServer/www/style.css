@@ -659,6 +659,43 @@ body {
     font-weight: 600;
 }
 
+.message-content .table-wrapper {
+    display: inline-block;
+    max-width: 100%;
+    margin: 1rem 0;
+    overflow-x: auto;
+    background-color: var(--bg-secondary);
+    border: 1px solid rgba(43, 52, 55, 0.08);
+    border-radius: var(--radius-lg);
+    vertical-align: top;
+}
+
+.message-content table {
+    width: max-content;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.message-content thead {
+    background-color: var(--bg-tertiary);
+}
+
+.message-content th,
+.message-content td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(43, 52, 55, 0.08);
+    text-align: left;
+    vertical-align: top;
+}
+
+.message-content th {
+    font-weight: 700;
+}
+
+.message-content tr:last-child td {
+    border-bottom: none;
+}
+
 /* Streaming Indicator */
 .streaming-indicator {
     display: inline-flex;

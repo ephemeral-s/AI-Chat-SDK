@@ -510,6 +510,46 @@ function finalizeAssistantMessage(messageId, content) {
     }
 }
 
+function normalizeMarkdownTables(content) {
+    const lines = content.split('\n');
+    const normalized = [];
+
+    const isTableSeparator = line => /^\s*\|?(\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?\s*$/.test(line);
+    const isTableRow = line => /\|/.test(line) && /^\s*\|?.+\|.+\|?\s*$/.test(line);
+
+    let i = 0;
+    while (i < lines.length) {
+        const line = lines[i];
+        const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
+        const prevLine = normalized.length > 0 ? normalized[normalized.length - 1] : '';
+
+        if (isTableRow(line) && isTableSeparator(nextLine)) {
+            if (prevLine.trim()) {
+                normalized.push('');
+            }
+
+            normalized.push(line);
+            normalized.push(nextLine);
+            i += 2;
+
+            while (i < lines.length && isTableRow(lines[i])) {
+                normalized.push(lines[i]);
+                i += 1;
+            }
+
+            if (i < lines.length && lines[i].trim()) {
+                normalized.push('');
+            }
+            continue;
+        }
+
+        normalized.push(line);
+        i += 1;
+    }
+
+    return normalized.join('\n');
+}
+
 function formatMessageContent(content) {
     // 检查 marked.js 是否已加载
     if (typeof marked === 'undefined') {
@@ -518,12 +558,14 @@ function formatMessageContent(content) {
     }
 
     try {
+        const normalizedContent = normalizeMarkdownTables(content);
+
         // 使用 marked.js 解析 Markdown
         let html;
         if (typeof marked.parse === 'function') {
-            html = marked.parse(content);
+            html = marked.parse(normalizedContent);
         } else if (typeof marked === 'function') {
-            html = marked(content);
+            html = marked(normalizedContent);
         } else {
             throw new Error('marked API not recognized');
         }
@@ -532,6 +574,13 @@ function formatMessageContent(content) {
         // 处理代码块，添加语言标签和复制按钮
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
+
+        tempDiv.querySelectorAll('table').forEach(table => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-wrapper';
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+        });
 
         tempDiv.querySelectorAll('pre').forEach((pre, index) => {
             const code = pre.querySelector('code');
