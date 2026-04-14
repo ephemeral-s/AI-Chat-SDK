@@ -52,28 +52,24 @@ namespace ai_chat_sdk{
 
     //通过会话ID获取会话信息
     std::shared_ptr<SessionInfo> SessionManager::getSession(const std::string& sessionId){
+        std::unique_lock<std::mutex> lock(_mutex);
         //先在内存中查找
-        _mutex.lock();
         auto it = _sessions.find(sessionId);
         if(it != _sessions.end()){
-            _mutex.unlock(); // 注意防止死锁
             it->second->_messages = _dataManager.getHistroyMessages(sessionId);
             return it->second;
         }
 
         //没找到，则从数据库中查找
-        _mutex.unlock(); // 注意防止死锁
         auto session = _dataManager.getSession(sessionId);
         if(session){
-            _mutex.lock();
             //在内存中查找，如果没有则同步到内存
             it = _sessions.find(sessionId);
             if(it == _sessions.end()){
                 _sessions[sessionId] = session;
                 it = _sessions.find(sessionId); // 更新it，防止迭代器失效问题
             }
-            _mutex.unlock(); // 注意防止死锁
-            it->second->_messages = _dataManager.getHistroyMessages(sessionId);
+            it->second->_messages = _dataManager.getHistroyMessages(sessionId); // 赋值操作必须在临界区
             return it->second;
         }
         WRN("Session {} not found", sessionId);
@@ -196,6 +192,7 @@ namespace ai_chat_sdk{
 
     //获取会话总数
     size_t SessionManager::getSessionCount() const{
+        std::unique_lock<std::mutex> lock(_mutex);
         return _sessionCounter.load();
     }
 }
