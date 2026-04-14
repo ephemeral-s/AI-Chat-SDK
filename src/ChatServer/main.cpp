@@ -20,7 +20,7 @@
 
 namespace {
 constexpr const char* kVersion = "1.0.0";
-constexpr const char* kDefaultConfigPath = "../../ChatServer.conf";
+constexpr const char* kDefaultConfigPath = "../ChatServer.conf";
 
 // CLI 参数定义：支持默认值、配置文件覆盖、命令行覆盖三层合并。
 DEFINE_string(config, kDefaultConfigPath, "Path to key=value config file.");
