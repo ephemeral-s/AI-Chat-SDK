@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - 多模型聊天</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar: Session List -->
+    <aside class="sidebar">
+        <!-- Brand Header -->
+        <div class="sidebar-header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <span class="material-symbols-outlined">editor_choice</span>
+                </div>
+                <h1>AI Chat</h1>
+            </div>
+            <button id="newSessionBtn" class="btn-primary">
+                <span class="material-symbols-outlined">add_comment</span>
+                新建会话
+            </button>
+        </div>
+
+        <!-- Session List -->
+        <nav id="sessionList" class="session-list">
+            <!-- Session items will be dynamically inserted here -->
+        </nav>
+
+        <!-- Sidebar Bottom Footer -->
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <span class="material-symbols-outlined">person</span>
+                </div>
+                <div class="user-details">
+                    <p class="user-name">用户</p>
+                    <p id="currentModelDisplay" class="user-model">选择模型开始聊天</p>
+                </div>
+            </div>
+            <div class="connection-status">
+                <span id="connectionStatus" class="status-dot"></span>
+                <span id="connectionText">连接状态：未连接</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- TopAppBar -->
+        <header class="top-bar">
+            <div class="session-info">
+                <h2 id="currentSessionTitle">请选择或创建会话</h2>
+                <span class="session-label">当前对话</span>
+            </div>
+            <div class="top-bar-actions">
+                <button id="refreshModelsBtn" class="icon-btn" title="刷新模型列表">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Message Canvas -->
+        <div id="messageContainer" class="message-container">
+            <!-- Messages will be dynamically inserted here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state">
+            <div class="empty-state-content">
+                <div class="empty-state-icon">
+                    <span class="material-symbols-outlined">auto_awesome</span>
+                </div>
+                <h3>今天想聊点什么？</h3>
+                <p>选择模型、新建会话，然后开始聊天。我能帮你解答问题、分析数据或探讨各种话题。</p>
+                <div class="example-questions">
+                    <div class="example-question" data-question="什么是量子纠缠？">
+                        <span class="material-symbols-outlined">lightbulb</span>
+                        <p>什么是量子纠缠？</p>
+                    </div>
+                    <div class="example-question" data-question="如何使用 Python 实现冒泡排序？">
+                        <span class="material-symbols-outlined">code</span>
+                        <p>如何使用 Python 实现冒泡排序？</p>
+                    </div>
+                    <div class="example-question" data-question="请解释一下相对论的基本原理">
+                        <span class="material-symbols-outlined">history_edu</span>
+                        <p>请解释一下相对论的基本原理</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Input Panel -->
+        <div class="input-panel">
+            <div class="input-container">
+                <textarea id="messageInput" class="message-input" placeholder="输入你的问题，Shift + Enter 换行" rows="1"></textarea>
+                <div class="input-actions">
+                    <button id="stopBtn" class="btn-stop">
+                        <span class="material-symbols-outlined">stop</span>
+                        停止
+                    </button>
+                    <button id="sendBtn" class="btn-send">
+                        发送
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+            </div>
+            <div class="input-footer">
+                <div class="input-footer-left">
+                    <span class="mode-indicator">
+                        <span class="material-symbols-outlined">bolt</span>
+                        流式回复
+                    </span>
+                    <span>Shift + Enter 换行</span>
+                </div>
+                <p class="input-footer-right">内容由 AI 生成，请注意甄别</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Model Selection Modal -->
+    <div id="modelModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>选择模型</h3>
+                <button id="closeModalBtn" class="modal-close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modelList" class="model-list">
+                    <!-- Model options will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <span id="toastIcon" class="material-symbols-outlined toast-icon"></span>
+            <span id="toastMessage" class="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <!-- Highlight.js for code syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
