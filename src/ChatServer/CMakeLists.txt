@@ -26,6 +26,7 @@ target_link_libraries(${CHATSERVER_NAME} PRIVATE
     gflags
     ai_chat_sdk
     sqlite3
+    cpp-httplib
 )
 
 set_target_properties(${CHATSERVER_NAME} PROPERTIES
