@@ -107,6 +107,7 @@ SDK 内置支持以下模型提供者：
 - C++17
 - OpenSSL
 - jsoncpp
+- cpp-httplib
 - spdlog
 - fmt
 - sqlite3

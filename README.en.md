@@ -107,6 +107,7 @@ From the current CMake configuration, the project depends on:
 - C++17
 - OpenSSL
 - jsoncpp
+- cpp-httplib
 - spdlog
 - fmt
 - sqlite3
