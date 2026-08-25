@@ -1,4 +1,4 @@
-# AI-Chat-SDK
+# LLM-Gateway-SDK
 
 A C++ multi-model chat SDK that provides a unified interface for initializing cloud LLMs and local Ollama models, managing chat sessions, sending messages, streaming responses, and persisting chat history.
 
